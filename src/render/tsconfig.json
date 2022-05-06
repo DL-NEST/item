@@ -1,0 +1,29 @@
+{
+  "compilerOptions": {
+    "target": "esnext",
+    "module": "esnext",
+    "strict": true,
+    "jsx": "preserve",
+    "importHelpers": true,
+    "moduleResolution": "node",
+    "experimentalDecorators": true,
+    "skipLibCheck": true,
+    "esModuleInterop": true,
+    "allowSyntheticDefaultImports": true,
+    "sourceMap": true,
+    "types": ["node"],
+    "baseUrl": "./",
+    "lib": ["esnext", "dom"],
+    "paths": {
+      "@/*": [
+        "./*"
+      ],
+      "views/*": [
+        "views/*"
+      ]
+    }
+  },
+  "include": ["./**/*.ts", "./**/*.d.ts", "./**/*.tsx", "./**/*.vue","*.ts"],
+  "references": [{ "path": "./tsconfig.node.json" }],
+  "exclude": ["../../node_modules/**/*.ts", "../../node_modules/**/*.d.ts", "../../node_modules/**/*.tsx", "../../node_modules/**/*.vue"]
+}
