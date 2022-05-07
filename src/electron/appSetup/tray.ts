@@ -1,9 +1,10 @@
-import { app, BrowserWindow, Menu, Tray, shell, Notification } from "electron";
-import {WinPool} from "../windows";
-import {sendNotification} from "../Notification";
+import { Menu, Tray, shell } from "electron";
+import {sendNotification} from "../appSetup";
+import {TaskManager} from "../processManage";
+import {join} from "path";
 
-function SignTray(iconPath: string, win: WinPool) {
-  let tray = new Tray(iconPath);
+function createTray(taskManager: TaskManager, tray:Tray) {
+  tray = new Tray(join(__dirname, "../../public/favicon.png"));
   const contextMenu = Menu.buildFromTemplate([
     {
       label: "关于项目",
@@ -28,23 +29,22 @@ function SignTray(iconPath: string, win: WinPool) {
       label: "重新加载",
       type: "normal",
       click: () => {
-        win.getMain().reload();
-        win.getMain().show();
+        taskManager.getMainElectron().reload();
       },
     },
     {
       label: "退出",
       type: "normal",
       click: () => {
-        win.closeAll()
+        taskManager.exitAllTaskProcess();
       },
     },
   ]);
   tray.setToolTip("item\n版本号：0.1.0\n作者：dl-nest");
   tray.setContextMenu(contextMenu);
   tray.on("click", () => {
-    win.getMain().show();
+    taskManager.getMainElectron().show();
   });
 }
 
-export { SignTray };
+export { createTray };

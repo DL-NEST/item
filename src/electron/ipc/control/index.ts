@@ -2,32 +2,7 @@ import {ipcMain,BrowserWindow} from 'electron';
 import {menuLists} from "../../../global";
 import {WinPool} from "../../windows";
 
-function winCtrlBar() {
-  ipcMain.on('btn_switch', (event, args) => {
-      let win = BrowserWindow.getFocusedWindow()
-      switch (args) {
-        case 'minimize':
-          win.minimize();
-          break;
-        case 'close':
-          BrowserWindow.getAllWindows().forEach(item => {
-            item.close();
-          })
-          break;
-        case 'maximize':
-          if (win.isMaximized()) {
-            win.unmaximize();
-          } else {
-            win.maximize();
-          }
-          break;
-        case 'fix':
-          win.setAlwaysOnTop(!win.isAlwaysOnTop(), 'floating');
-          break;
-      }
-    },
-  );
-}
+
 
 function winMenuBar(winPool: WinPool) {
   ipcMain.on('menu_fun', (event, args) => {
@@ -51,6 +26,5 @@ function fun(name:string,winPool: WinPool) {
 }
 
 export {
-  winCtrlBar,
   winMenuBar
 }

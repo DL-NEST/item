@@ -18,7 +18,7 @@ async function buildMain() {
   // });
   // 检查服务是否启动
   // 启动electron
-  ele = spawn(electron, ["."], {
+  ele = spawn(electron, [".","--trace-warnings"], {
     stdio: "inherit",
     env,
   });

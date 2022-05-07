@@ -4,10 +4,12 @@ import {ctrl_win} from "./windows";
 import {WinPool} from "../windows";
 
 // 注册ipc事件
-export function SignIpc(winPool:WinPool) {
-    // topBar
-    winCtrlBar()
-    winMenuBar(winPool)
-    // windows
-    ctrl_win(winPool)
-}
+// export function SignIpc(win:BrowserWindow) {
+//     // topBar
+//     winCtrlBar()
+//     // winMenuBar(win)
+//     // windows
+//     // ctrl_win(win)
+// }
+
+export * from './control'

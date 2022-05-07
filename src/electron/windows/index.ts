@@ -54,4 +54,5 @@ class WinPool {
 }
 
 export {WinPool}
-export * from './hover'
+export * from './taskManager'
+export * from './main'

@@ -1,6 +1,6 @@
-import {app, BrowserWindow, BrowserWindowConstructorOptions} from 'electron';
+import {app, BrowserWindow, BrowserWindowConstructorOptions,ipcMain} from 'electron';
 import {ChildProcess, spawn,fork} from "child_process";
-import {join} from "path";
+import {createProtocol} from "../appSetup";
 
 /*
 * 任务进程管理器,用于管理任务进程,并且提供任务进程的启动和关闭功能,以及监听任务进程的退出事件
@@ -12,24 +12,20 @@ import {join} from "path";
 * */
 
 
-
 // 任务管理器的全局对象
 class TaskManager {
     // electron进程
     private electronProcessList: {
-        [key: string]: BrowserWindow;
+        [key:string]: BrowserWindow;
     };
     // 任务进程
     private taskProcessList: {
         [key: string]: ChildProcess;
     };
-
-    // 任务进程的退出事件
-    private taskProcessExitEvent: {
-        [key: string]: (code: number) => void;
-    }
-    private electronProcessExitEvent: {
-        [key: string]: (code: number) => void;
+    // 初始化变量
+    constructor() {
+        this.electronProcessList = {};
+        this.taskProcessList = {};
     }
 
     // 返回任务进程的列表
@@ -40,42 +36,66 @@ class TaskManager {
         return this.electronProcessList   // 返回electron进程列表
     }
     // 返回任务
-    public getTaskProcess(key:string):any {
-        return this.taskProcessExitEvent[key]   // 返回任务进程退出事件
+    public getTaskProcessByName(key:string):any {
+        return this.taskProcessList[key]
     }
-    public getElectronProcess(key:string):any {
-        return this.electronProcessList[key]   // 返回electron进程列表
+    public getElectronProcessByName(key:string):BrowserWindow {
+        return this.electronProcessList[key]
+    }
+    public getMainElectron():BrowserWindow {
+        return this.electronProcessList['main']
+    }
+    // 退出所有进程
+    public exitAllTaskProcess():void {
+        for (let key in this.taskProcessList) {
+            this.taskProcessList[key].kill();
+        }
+        for (let key in this.electronProcessList) {
+            this.electronProcessList[key].close();
+        }
     }
 
     // electron进程创建方法
-    public createElectronProcess(name: string, path: string, args: BrowserWindowConstructorOptions): void {
+    public createElectronProcess(name: string, routerPath: string, args: BrowserWindowConstructorOptions,registerIpc: ()=>any): void {
+        if (this.electronProcessList[name]) {
+            return;
+        }
         // 创建electron进程
         const electronProcess = new BrowserWindow({
+            // 在创建的时候不显示窗口
+            show: false,
             ...args,
         });
+        createProtocol('app');
         // 加载electron进程
-        console.log(process.env)
         if (app.isPackaged) {
-            electronProcess.loadFile(join(__dirname, `../render/index.html`)+`/#${path}`).then((r) => {
-                console.log("PRO_MODE");
+            electronProcess.loadURL(`app://../render/index.html#${routerPath}`).then((r) => {
             });
         } else {
-            electronProcess.loadURL(`http://localhost:3000/#${path}`).then((r) => {
-                console.log("TEST_MODE");
+            electronProcess.loadURL(`http://localhost:3000/#${routerPath}`).then((r) => {
             });
         }
         // 将electron进程加入到electron进程列表中
         this.electronProcessList[name] = electronProcess;
-        // 将electron进程的退出事件加入到electron进程退出事件列表中
-        this.electronProcessExitEvent[name] = (code: number) => {
-            console.log(`electron进程${name}退出了,退出码为${code}`);
+        // 添加electron进程的退出事件
+        electronProcess.on('close', () => {
+            console.log(`${name} -- close`);
+            // 删除electron进程
             delete this.electronProcessList[name];
-            delete this.electronProcessExitEvent[name];
-        }
+        });
+        // 窗口准备完毕后执行
+        electronProcess.on('ready-to-show', () => {
+            electronProcess.show();
+        });
+        // electron的ipc事件列表
+        registerIpc();
     }
 
     // 任务的创建
     public createTaskProcess(taskName: string, taskPath: string, taskArgument: string[]): void {
+        if (this.taskProcessList[taskName]) {
+            return;
+        }
         // 创建任务进程
         this.taskProcessList[taskName] = spawn(taskPath, taskArgument);
         // 监听任务进程的退出事件
@@ -83,8 +103,6 @@ class TaskManager {
             console.log(`任务进程 ${taskName} 退出,退出码为: ${code}`);
             // 删除任务进程
             delete this.taskProcessList[taskName];
-            // 删除任务进程的退出事件
-            delete this.taskProcessExitEvent[taskName];
         });
     }
 }

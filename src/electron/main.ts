@@ -1,75 +1,34 @@
 import { release } from "os";
-import {app, BrowserWindow, ipcMain, Notification, Tray} from "electron";
-import { join } from "path";
-import { SignTray } from "./tray";
-import { SignShortcut } from "./globalShortcut";
-import {SignIpc} from "./ipc";
-import {SignMenu} from "./menu";
-import {WinPool} from "./windows";
-import {sendNotification} from "./Notification";
+import {app, BrowserWindow, Tray,globalShortcut} from "electron";
+import {createTaskManager, createWindow} from "./windows";
+import {TaskManager} from "./processManage";
+import {InitAppConf, createTray, SetupGlobalIpc} from "./appSetup";
 
-// 禁用GPU加速 in Windows 7
-if (release().startsWith("6.1")) app.disableHardwareAcceleration();
-
-// 设置Windows 10+通知的应用程序名称
-if (process.platform === "win32") app.setAppUserModelId(app.getName());
-
-
-process.env["ELECTRON_DISABLE_SECURITY_WARNINGS"] = "true";
-
-let icon = join(__dirname, "../../public/favicon.png");
 // 窗口的管理
-let winPool = null;
+let taskManager = new TaskManager()
+let tray:Tray = null
 
-function createWindow() {
-  winPool = new WinPool(new BrowserWindow({
-    title: 'main',
-    width: 1055,
-    height: 710,
-    icon: icon,
-    frame: false, // 无边框
-    // resizable: false, // 窗口不可以调整大小
-    // autoHideMenuBar: true, // 隐藏控制栏
-    titleBarStyle: "hidden", // 隐藏标题栏
-    webPreferences: {
-      contextIsolation: false,
-      nodeIntegration: true,
-      webSecurity: true,
-      webgl: true,
-      preload: join(__dirname, '../preload/index.cjs')
-    },
-  }));
-  winPool.main.on("ready-to-show", () => {
-    winPool.main?.show();
-  });
-  if (app.isPackaged) {
-    winPool.main.loadFile(join(__dirname, "../render/index.html")).then((r) => {
-      console.log("PRO_MODE");
-    });
-  } else {
-    winPool.main.loadURL("http://localhost:3000").then((r) => {
-      console.log("TEST_MODE");
-    });
-  }
-}
+// 初始化app配置
+InitAppConf()
 
-// app准备之前
-app.whenReady().then(() => {
-  createWindow();
-  // 注册托盘
-  SignTray(icon, winPool);
+// app准备完成
+app.whenReady().then(async () => {
+  // 创建主窗口
+  await createWindow(taskManager);
   // 全局快捷键
-  SignShortcut(winPool.main);
-  // 注册ipc
-  SignIpc(winPool);
+  SignShortcut(taskManager);
+  // 全局ipc事件
+  SetupGlobalIpc()
+  // 注册托盘
+  createTray(taskManager,tray);
   // 注册菜单
-  SignMenu(winPool);
+  // SignMenu(winPool);
 
 });
 
 app.on("activate", () => {
   if (BrowserWindow.getAllWindows().length === 0) {
-    createWindow();
+    createWindow(taskManager);
   }
 });
 
@@ -84,3 +43,39 @@ app.on("window-all-closed", () => {
     app.quit();
   }
 });
+
+
+app.on('will-quit', () => {
+  // Unregister all shortcuts.
+  globalShortcut.unregisterAll()
+  tray.destroy()
+})
+
+function SignShortcut(taskManager: TaskManager) {
+  // 检测是否已经注册过快捷键
+  if (globalShortcut.isRegistered("Alt+q")) {
+    console.log("have registered")
+  }
+  let winMain = taskManager.getMainElectron()
+  globalShortcut.register("Alt+q", () => {
+    if (winMain.isFocused()) {
+      winMain.minimize();
+      winMain.reload();
+    } else {
+      winMain.focus();
+    }
+  })
+  // 打开开发者调试工具
+  globalShortcut.register("Alt+w", () => {
+    if (winMain.webContents.isDevToolsOpened()) {
+      winMain.webContents.closeDevTools();
+    } else {
+      winMain.webContents.openDevTools({ mode: "undocked" });
+    }
+  });
+  // 打开任务管理器
+  globalShortcut.register("Alt+e", () => {
+    createTaskManager(taskManager);
+  });
+
+}
