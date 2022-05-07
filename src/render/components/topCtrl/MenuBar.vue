@@ -66,7 +66,7 @@ export default defineComponent({
           }
       );
     },
-    menuFun(item){
+    menuFun(item:any){
       console.log(item.click)
       window.$ipc.send("menu_fun", item.name)
     }

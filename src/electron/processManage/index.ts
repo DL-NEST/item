@@ -1,6 +1,7 @@
-import {app, BrowserWindow, BrowserWindowConstructorOptions,ipcMain} from 'electron';
-import {ChildProcess, spawn,fork} from "child_process";
-import {createProtocol} from "../appSetup";
+import {app, BrowserWindow, BrowserWindowConstructorOptions} from 'electron';
+import {ChildProcess, spawn} from "child_process";
+import {createProtocol} from "@/appSetup";
+import {processManageType} from "./type";
 
 /*
 * 任务进程管理器,用于管理任务进程,并且提供任务进程的启动和关闭功能,以及监听任务进程的退出事件
@@ -16,12 +17,13 @@ import {createProtocol} from "../appSetup";
 class TaskManager {
     // electron进程
     private electronProcessList: {
-        [key:string]: BrowserWindow;
+        [key: string]: BrowserWindow;
     };
     // 任务进程
     private taskProcessList: {
         [key: string]: ChildProcess;
     };
+
     // 初始化变量
     constructor() {
         this.electronProcessList = {};
@@ -29,24 +31,29 @@ class TaskManager {
     }
 
     // 返回任务进程的列表
-    public getTaskProcessList():any {
+    public getTaskProcessList(): any {
         return this.taskProcessList   // 返回任务进程列表
     }
-    public getElectronProcessList():any {
+
+    public getElectronProcessList(): any {
         return this.electronProcessList   // 返回electron进程列表
     }
+
     // 返回任务
-    public getTaskProcessByName(key:string):any {
+    public getTaskProcessByName(key: string): any {
         return this.taskProcessList[key]
     }
-    public getElectronProcessByName(key:string):BrowserWindow {
+
+    public getElectronProcessByName(key: string): BrowserWindow {
         return this.electronProcessList[key]
     }
-    public getMainElectron():BrowserWindow {
+
+    public getMainElectron(): BrowserWindow {
         return this.electronProcessList['main']
     }
+
     // 退出所有进程
-    public exitAllTaskProcess():void {
+    public exitAllTaskProcess(): void {
         for (let key in this.taskProcessList) {
             this.taskProcessList[key].kill();
         }
@@ -55,8 +62,34 @@ class TaskManager {
         }
     }
 
+    // 返回所有进程的状态参数
+    public getAllProcessStatus(): processManageType[] {
+        let processList: processManageType[] = [];
+        for (let key in this.taskProcessList) {
+            processList.push({
+                name: key,
+                cpu: 2,
+                mark: 'task',
+                memory: 3,
+                pid: this.taskProcessList[key].pid,
+                status: this.taskProcessList[key].connected
+            });
+        }
+        for (let key in this.electronProcessList) {
+            processList.push({
+                name: key,
+                cpu: 2,
+                mark: 'electron',
+                memory: 3,
+                pid: this.electronProcessList[key].id,
+                status: this.electronProcessList[key].isDestroyed()
+            })
+        }
+        return processList;
+    }
+
     // electron进程创建方法
-    public createElectronProcess(name: string, routerPath: string, args: BrowserWindowConstructorOptions,registerIpc: ()=>any): void {
+    public createElectronProcess(name: string, routerPath: string, args: BrowserWindowConstructorOptions, registerIpc: (electronProcess: BrowserWindow) => any): void {
         if (this.electronProcessList[name]) {
             return;
         }
@@ -88,7 +121,7 @@ class TaskManager {
             electronProcess.show();
         });
         // electron的ipc事件列表
-        registerIpc();
+        registerIpc(electronProcess);
     }
 
     // 任务的创建

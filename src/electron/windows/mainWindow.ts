@@ -1,5 +1,6 @@
 import {join} from "path";
-import {TaskManager} from "../processManage";
+import {TaskManager} from "@/processManage";
+import {ipcMain} from "electron";
 
 export function createWindow(taskManager: TaskManager) {
     taskManager.createElectronProcess("main", "/",{
@@ -17,5 +18,11 @@ export function createWindow(taskManager: TaskManager) {
             preload: join(__dirname, '../preload/index.cjs')
         },
     },()=>{
+        ipcMain.on('btn_switch', (event, args) => {
+                if (args === "closeAll") {
+                    taskManager.exitAllTaskProcess();
+                }
+            },
+        );
     });
 }

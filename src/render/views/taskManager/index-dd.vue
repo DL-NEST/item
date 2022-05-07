@@ -1,14 +1,14 @@
 <template>
   <div class="task-manager">
     <div class="task-ctrl">
-      <n-button type="success" size="small" @click="DevTool">DevTool</n-button>
-      <n-button type="success" size="small" @click="IpcLog">IpcLog</n-button>
-      <n-button type="success" size="small" @click="Show">Show</n-button>
-      <n-button type="error" size="small" @click="Kill">Kill</n-button>
+      <n-button type="success" size="small">DevTool</n-button>
+      <n-button type="success" size="small">IpcLog</n-button>
+      <n-button type="success" size="small">Show</n-button>
+      <n-button type="error" size="small">Kill</n-button>
       <n-button type="error" size="small" @click="get">get</n-button>
     </div>
     <div class="task-list">
-      <n-data-table :columns="dataRule" :data="data" :row-props="rowProps" :single-line="true"/>
+      <n-data-table class="list-table" :columns="dataRule" :data="data" :row-props="rowProps" :single-line="true"/>
     </div>
   </div>
   <div class="YMenu" v-show="YMenu.show"
@@ -26,10 +26,28 @@
   </div>
 </template>
 
-<script lang="ts" setup>
+<script lang="ts" >
+import {defineComponent, ref} from "vue";
 import {NButton,NDataTable} from 'naive-ui'
-import {onMounted, ref} from 'vue'
-import {Process, MenuOp, menuList, processManageType} from "views/taskManager/type";
+
+type Process = {
+  name:string
+  pid:number,
+  mark:string,
+  vacant:number
+}
+
+type MenuOp = {
+  show: boolean,
+  x: number,
+  y: number
+}
+type menuList = {
+  icon:any,
+  name:string,
+  onClick?: () => any,
+  child?:menuList[]
+}
 
 const menuData:menuList[][] = [
   [
@@ -72,85 +90,123 @@ const dataRule:any =[
     key: 'mark'
   },
   {
-    title: 'Memory',
-    key: 'memory'
-  },
-  {
-    title: 'Status',
-    key: 'status'
+    title: 'Vacant',
+    key: 'vacant'
   }
 ]
 
+let processData:Process[] = [
+  {
+    name: 'main',
+    pid: 3252,
+    mark: 'electron',
+    vacant: 1341
+  },
+  {
+    name: 'main',
+    pid: 3252,
+    mark: 'electron',
+    vacant: 1341
+  },
+  {
+    name: 'main',
+    pid: 3252,
+    mark: 'electron',
+    vacant: 1341
+  },
+  {
+    name: 'main',
+    pid: 3252,
+    mark: 'electron',
+    vacant: 1341
+  },
+  {
+    name: 'main',
+    pid: 3252,
+    mark: 'electron',
+    vacant: 1341
+  },
+  {
+    name: 'main',
+    pid: 3252,
+    mark: 'electron',
+    vacant: 1341
+  },
+  {
+    name: 'main',
+    pid: 3252,
+    mark: 'electron',
+    vacant: 1341
+  },
+  {
+    name: 'main',
+    pid: 3252,
+    mark: 'electron',
+    vacant: 1341
+  },
+]
 
-let data = ref<processManageType[]>()
-let YMenu = ref<MenuOp>({
-  show: false,
-  x: 0,
-  y: 0
-})
-const dss = ref<string>()
-
-function showMenu(even:any) {
-  YMenu.value.show = !YMenu.value.show
-  YMenu.value.y = even.pageY
-  YMenu.value.x = even.pageX
-}
-
-const rowProps = (row:any) => {
-  return {
-    style: `cursor: pointer;${row.name === dss.value? 'background-color: rgba(93, 157, 196, 0.4);': ''}`,
-    onmouseup: (even:any)=>{
-      if (even.button === 2){
-        dss.value = row.name
-        showMenu(even)
-      }
-      if (even.button === 0){
-        dss.value = row.name
-      }
-    },
+export default defineComponent({
+  name: "taskManager",
+  components:{NButton,NDataTable},
+  setup () {
+    let data = ref(processData)
+    let YMenu = ref<MenuOp>({
+      show : false,
+      x: 100,
+      y: 0
+    })
+    function showMenu(even:any) {
+      YMenu.value.show = !YMenu.value.show
+      YMenu.value.y = even.pageY
+      YMenu.value.x = even.pageX
+      console.log(even)
+    }
+    return {
+      dataRule,
+      data,
+      YMenu,
+      menuData,
+      rowProps: (row:any) => {
+        return {
+          style: 'cursor: pointer;',
+          onmouseup: (even:any)=>{
+            if (even.button === 2){
+              showMenu(even)
+              console.log('右键,name:'+row.name)
+            }
+            if (even.button === 0){
+              console.log('左键,name:'+row.name)
+            }
+          },
+        }
+      },
+    }
+  },
+  mounted() {
+    document.onclick= ()=>{
+      this.YMenu.show = false
+    }
+    window.$ipc.on('taskManager_z',(event, args)=>{
+      console.log(args)
+    })
+  },
+  methods: {
+    get(){
+      window.$ipc.send('taskManager','render hallo')
+    }
   }
-}
-
-onMounted(()=>{
-  document.onclick= ()=>{
-    YMenu.value.show = false
-  }
-  window.$ipc.on('taskManager_get_to',(event, args)=>{
-    data.value = args
-  })
 })
-
-function get(){
-  window.$ipc.send('taskManager_get','render hallo')
-}
-
-function DevTool() {
-  window.$ipc.send('taskManager_DevTool')
-}
-
-function IpcLog() {
-
-}
-
-function Show() {
-
-}
-
-function Kill() {
-
-}
 
 </script>
 
 <style lang="scss">
-:root{
-  --n-td-color-hover: rgb(192, 80, 80) !important;
-}
 .task-manager{
   position: absolute;
   z-index: 10;
   width: 100%;
   height: 100%;
+  background-color: rgb(255,255,255);
   .task-ctrl{
     width: 100%;
     height: 40px;
@@ -172,7 +228,6 @@ function Kill() {
     height: 100%;
     background-color: #d0d6df;
     overflow: auto;
-    user-select: none;
   }
 }
 .YMenu{
@@ -244,11 +299,6 @@ ol, ul {
 .task-list::-webkit-scrollbar-corner {
   background: #545454;
 }
-.n-data-table .n-data-table-td {
-  user-select: none;
-  background-color: rgba(93, 157, 196, 0) !important;
-}
-.n-data-table .n-data-table-tr {
-  transition: background-color 0.3s ease-in-out;
-}
+
+
 </style>

@@ -1,6 +1,7 @@
 import { defineConfig } from "vite";
 import { builtinModules } from "module";
-import pkg from "../../package.json";
+import * as path from "path";
+const pkg = require("../../package.json");
 
 
 export default defineConfig({
@@ -22,5 +23,13 @@ export default defineConfig({
         ...Object.keys(pkg.dependencies || {}),
       ],
     },
+  },
+  resolve: {
+    alias: [
+      {
+        find:'@',
+        replacement: path.resolve(__dirname, './'),
+      },
+    ],
   },
 });

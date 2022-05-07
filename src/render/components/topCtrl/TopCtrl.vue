@@ -12,22 +12,10 @@
   </div>
 </template>
 
-<script lang="ts">
-import {defineComponent, ref} from "vue";
+<script lang="ts" setup>
 import MenuBar from "./MenuBar.vue";
 import WinCtrlBar from "./WinCtrlBar.vue";
 
-export default defineComponent({
-  name: "TopCtrl",
-  components: {WinCtrlBar, MenuBar},
-  setup() {
-  },
-  mounted() {
-    console.log(this.$route)
-  },
-  methods:{
-  },
-});
 </script>
 
 <style lang="scss">

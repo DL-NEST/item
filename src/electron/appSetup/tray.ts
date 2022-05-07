@@ -1,9 +1,9 @@
 import { Menu, Tray, shell } from "electron";
 import {sendNotification} from "../appSetup";
-import {TaskManager} from "../processManage";
+import {TaskManager} from "@/processManage";
 import {join} from "path";
 
-function createTray(taskManager: TaskManager, tray:Tray) {
+function createTray(taskManager: TaskManager, tray?: Tray | undefined) {
   tray = new Tray(join(__dirname, "../../public/favicon.png"));
   const contextMenu = Menu.buildFromTemplate([
     {
