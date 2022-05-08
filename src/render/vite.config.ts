@@ -13,6 +13,11 @@ export default defineConfig({
         changeOrigin: true,
         rewrite: (path) => path.replace(/^\/api/, '')
       },
+      '/python': {
+        target: 'https://www.python.org/ftp/python/',
+        changeOrigin: true,
+        rewrite: (path) => path.replace(/^\/python/, '')
+      },
     }
   },
   build: {

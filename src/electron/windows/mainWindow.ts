@@ -18,7 +18,7 @@ export function createWindow(taskManager: TaskManager) {
             preload: join(__dirname, '../preload/index.cjs')
         },
     },()=>{
-        ipcMain.on('btn_switch', (event, args) => {
+        ipcMain.once('btn_switch', (event, args) => {
                 if (args === "closeAll") {
                     taskManager.exitAllTaskProcess();
                 }

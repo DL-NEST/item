@@ -1,24 +1,27 @@
 import { spawn } from "child_process";
 import { build, createServer } from "vite";
 import electron from "electron";
+import chokidar from "chokidar";
+
+const env = Object.assign(process.env, {
+  VITE_DEV_SERVER_HOST: "host",
+  VITE_DEV_SERVER_PORT: "3308",
+});
+
+let mainProcess;
 
 // 编译主进程
-async function buildMain() {
-  let ele = null;
-  const env = Object.assign(process.env, {
-    VITE_DEV_SERVER_HOST: "host",
-    VITE_DEV_SERVER_PORT: "3308",
-  });
-  // 编译主进程
+async function buildMain(command, options) {
+  // 构建并且监听文件变化
   await build({
     configFile: "src/electron/vite.config.ts",
-  });
+  })
   // await build({
   //   configFile: "src/preload/vite.config.ts",
   // });
   // 检查服务是否启动
   // 启动electron
-  ele = spawn(electron, [".","--trace-warnings"], {
+  mainProcess = spawn(electron, [".", "--inspect=127.0.0.1:4399"], {
     stdio: "inherit",
     env,
   });
@@ -37,3 +40,11 @@ async function startServer() {
 
 await startServer();
 await buildMain();
+chokidar.watch('src/electron/**/*').on('all', (event, path) => {
+  if (event === 'change') {
+    mainProcess.kill();
+    buildMain().then(() => {
+      console.log('main rebuild');
+    })
+  }
+});

@@ -222,6 +222,7 @@ export default defineComponent({
       margin-right: 5px;
       font-size: 1.1em ;
     }
+
   }
   .task-list{
     width: 100%;

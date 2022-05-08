@@ -1,11 +1,11 @@
 <template>
   <div class="task-manager">
     <div class="task-ctrl">
-      <n-button type="success" size="small" @click="DevTool">DevTool</n-button>
-      <n-button type="success" size="small" @click="IpcLog">IpcLog</n-button>
-      <n-button type="success" size="small" @click="Show">Show</n-button>
-      <n-button type="error" size="small" @click="Kill">Kill</n-button>
-      <n-button type="error" size="small" @click="get">get</n-button>
+      <n-button type="success" size="small" @click="func('DevTool')">DevTool</n-button>
+      <n-button type="success" size="small" @click="func('IpcLog')">IpcLog</n-button>
+      <n-button type="success" size="small" @click="func('Show')">Show</n-button>
+      <n-button type="error" size="small" @click="func('Kill')">Kill</n-button>
+      <n-button class="ctrl-right" type="info" size="small" @click="MainDevTool">MainDevTool</n-button>
     </div>
     <div class="task-list">
       <n-data-table :columns="dataRule" :data="data" :row-props="rowProps" :single-line="true"/>
@@ -16,7 +16,7 @@
        @blur="()=>{YMenu.show = false}"
   >
     <ul class="YMenu-list" v-for="list in menuData">
-      <li class="YMenu-item" v-for="item in list">
+      <li class="YMenu-item" v-for="item in list" @click="item.onClick()">
         <button class="menu-button">
           <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-corner-up-right"><polyline points="15 14 20 9 15 4"></polyline><path d="M4 20v-7a4 4 0 0 1 4-4h12"></path></svg>
           {{item.name}}
@@ -35,25 +35,29 @@ const menuData:menuList[][] = [
   [
     {
       icon:'显示',
-      name:'显示(window)'
+      name:'显示(window)',
+      onClick:()=>func('Show')
     },
     {
       icon:'DevTool',
-      name:'DevTool'
+      name:'DevTool',
+      onClick:()=>func('DevTool')
     },
     {
       icon:'Ipc',
-      name:'Ipc日记'
+      name:'Ipc日记',
+      onClick:()=>func('IpcLog')
     }
   ],
   [
     {
       icon:'挂起进程',
-      name:'挂起进程'
+      name:'挂起进程(未实现)'
     },
     {
       icon:'结束进程',
-      name:'结束进程'
+      name:'结束进程',
+      onClick:()=>func('Kill')
     }
   ],
 ]
@@ -112,33 +116,36 @@ const rowProps = (row:any) => {
 }
 
 onMounted(()=>{
+  get()
   document.onclick= ()=>{
-    YMenu.value.show = false
+    if (YMenu.value.show){
+      YMenu.value.show = false
+    }
   }
   window.$ipc.on('taskManager_get_to',(event, args)=>{
     data.value = args
   })
+  setInterval(()=>{get()},1000)
 })
 
 function get(){
-  window.$ipc.send('taskManager_get','render hallo')
+  window.$ipc.send('taskManager_get','')
 }
 
-function DevTool() {
-  window.$ipc.send('taskManager_DevTool')
+function func(funcName:string) {
+  let args = {
+    funcName: funcName,
+    processName: dss.value
+  }
+  if (dss.value){
+    window.$ipc.send("taskManager_func",args)
+  }
 }
 
-function IpcLog() {
-
+function MainDevTool() {
+  window.$ipc.send('MainDevTool','')
 }
 
-function Show() {
-
-}
-
-function Kill() {
-
-}
 
 </script>
 
@@ -165,6 +172,10 @@ function Kill() {
       -webkit-app-region: no-drag;
       margin-right: 5px;
       font-size: 1.1em ;
+    }
+    .ctrl-right{
+      position: absolute;
+      right: 12px;
     }
   }
   .task-list{
@@ -249,6 +260,6 @@ ol, ul {
   background-color: rgba(93, 157, 196, 0) !important;
 }
 .n-data-table .n-data-table-tr {
-  transition: background-color 0.3s ease-in-out;
+  transition: background-color 0.2s ease-in-out;
 }
 </style>

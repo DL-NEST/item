@@ -4,14 +4,14 @@ import "./style/index.scss";
 import {setupRouter} from "@/routes";
 import { useIpcRenderer } from '@vueuse/electron'
 import setupGlobal from "@/components/global";
-import VueAxios from "vue-axios";
+import {createPinia} from "pinia";
 
 const app = createApp(App);
 window.$ipc = useIpcRenderer();     // 全局ipc
 
 (async function setupApp() {
     // 装载全局store/pinia
-    // app.use(createPinia());
+    app.use(createPinia());
     // 装载路由
     await setupRouter(app);
     // 初始化全局组件

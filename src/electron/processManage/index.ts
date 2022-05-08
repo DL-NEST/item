@@ -43,8 +43,15 @@ class TaskManager {
     public getTaskProcessByName(key: string): any {
         return this.taskProcessList[key]
     }
-
     public getElectronProcessByName(key: string): BrowserWindow {
+        return this.electronProcessList[key]
+    }
+
+    // 退出任务
+    public exitTaskProcessByName(key: string): any {
+        return this.taskProcessList[key]
+    }
+    public exitElectronProcessByName(key: string): BrowserWindow {
         return this.electronProcessList[key]
     }
 
@@ -89,7 +96,7 @@ class TaskManager {
     }
 
     // electron进程创建方法
-    public createElectronProcess(name: string, routerPath: string, args: BrowserWindowConstructorOptions, registerIpc: (electronProcess: BrowserWindow) => any): void {
+    public createElectronProcess(name: string, routerPath: string, args: BrowserWindowConstructorOptions, onceIpc: (electronProcess: BrowserWindow) => any): void {
         if (this.electronProcessList[name]) {
             return;
         }
@@ -111,7 +118,7 @@ class TaskManager {
         // 将electron进程加入到electron进程列表中
         this.electronProcessList[name] = electronProcess;
         // 添加electron进程的退出事件
-        electronProcess.on('close', () => {
+        electronProcess.on('close', (event) => {
             console.log(`${name} -- close`);
             // 删除electron进程
             delete this.electronProcessList[name];
@@ -121,9 +128,8 @@ class TaskManager {
             electronProcess.show();
         });
         // electron的ipc事件列表
-        registerIpc(electronProcess);
+        onceIpc(electronProcess);
     }
-
     // 任务的创建
     public createTaskProcess(taskName: string, taskPath: string, taskArgument: string[]): void {
         if (this.taskProcessList[taskName]) {

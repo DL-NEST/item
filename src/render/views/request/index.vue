@@ -42,15 +42,7 @@ export default defineComponent({
   methods: {
     res(){
       api.get(this.inUrl).then(data=>{
-        console.log(data)
         this.output = data.data
-        window.$ipc.send('windows',{
-          title:'任务管理器',
-          name:'hover',
-          width: 600,
-          height: 500,
-          alwaysOnTop: true
-        })
       })
     },
   },

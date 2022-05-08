@@ -2,6 +2,7 @@
 import { createRouter, createWebHashHistory, RouteRecordRaw } from 'vue-router'
 import type { App } from 'vue';
 import { createRouterGuide } from '@/routes/guard';
+import {htmRoutes, winRoutes} from "@/routes/router";
 
 
 const routes: RouteRecordRaw[] = [
@@ -9,21 +10,7 @@ const routes: RouteRecordRaw[] = [
         path: '/',
         redirect: '/nav',
     },
-    {
-        path: '/nav',
-        name: 'nav',
-        component: () => import('views/nav/nav.vue')
-    },
-    {
-        path: '/request',
-        name: 'request',
-        component: () => import('views/request/index.vue'),
-    },
-    {
-        path: '/taskManager',
-        name: 'taskManager',
-        component: () => import('views/taskManager/index.vue'),
-    },
+    ...winRoutes,...htmRoutes
 ];
 
 const router = createRouter({

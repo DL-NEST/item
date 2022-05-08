@@ -10,7 +10,7 @@ export default defineConfig({
     outDir: "../../dist/main",
     emptyOutDir: true,
     minify: process.env.NODE_ENV === "production",
-    sourcemap: false,
+    sourcemap: true,
     lib: {
       entry: "main.ts",
       formats: ["cjs"],

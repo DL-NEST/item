@@ -1,7 +1,10 @@
-import {app, BrowserWindow, Tray,globalShortcut} from "electron";
+import {app, BrowserWindow, Tray,globalShortcut,session} from "electron";
 import {createTaskManager, createWindow} from "./windows";
 import {TaskManager} from "./processManage";
 import {InitAppConf, createTray, SetupGlobalIpc} from "./appSetup";
+import * as os from "os";
+import * as path from "path";
+
 
 // 窗口的管理
 let taskManager = new TaskManager()
@@ -9,15 +12,19 @@ let tray:Tray | undefined = undefined
 
 // 初始化app配置
 InitAppConf()
-
 // app准备完成
 app.whenReady().then(async () => {
+  console.log(app.getPath("userData"))
+  console.log(app.getPath("home"))
+  session.defaultSession.loadExtension('I:\\porject\\vueDevTool').then(() => {
+    console.log('load Vue devtools success')
+  })
   // 创建主窗口
   await createWindow(taskManager);
   // 全局快捷键
   SetupShortcut(taskManager);
-  // 全局ipc事件
-  SetupGlobalIpc()
+  // ipc事件
+  SetupGlobalIpc(taskManager)
   // 注册托盘
   createTray(taskManager,tray);
   // 注册菜单

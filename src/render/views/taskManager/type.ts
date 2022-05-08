@@ -32,4 +32,4 @@ type processManageType = {
 
 
 
-export {Process,MenuOp,menuList,processManageListType,processManageType}
+export {Process,MenuOp,menuList,processManageType}

@@ -1,6 +1,6 @@
 import { builtinModules } from 'module'
 import { defineConfig } from 'vite'
-import pkg from '../../package.json'
+const pkg =  require("../../package.json")
 
 export default defineConfig({
   root: __dirname,
