@@ -1,7 +1,7 @@
 html,
 body,
 #app {
-  font-family: Avenir, Helvetica, Arial,"Inter","JetBrains Mono", sans-serif;
+  font-family: Avenir, Helvetica, Arial,"Inter","JetBrains Mono",'Poppins', sans-serif;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
   //text-align: center;
@@ -20,4 +20,5 @@ body,
 *:after,
 *:before {
   box-sizing: border-box;
+  -webkit-app-region: no-drag;
 }

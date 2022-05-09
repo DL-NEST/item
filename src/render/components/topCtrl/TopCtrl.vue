@@ -1,5 +1,5 @@
 <template>
-  <div class="top-ctrl" v-if="this.$route.path !== '/taskManager'">
+  <div class="top-ctrl" v-if="this.$route.path !== '/taskManager' && this.$route.path !== '/translation'">
     <div class="top-ctrl_left">
       <div class="top-ctrl_left_logo">
         <img src="../../assets/favicon.svg" alt="logo" />

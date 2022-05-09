@@ -12,7 +12,6 @@ let mainProcess;
 
 // 编译主进程
 async function buildMain(command, options) {
-  // 构建并且监听文件变化
   await build({
     configFile: "src/electron/vite.config.ts",
   })
@@ -40,7 +39,10 @@ async function startServer() {
 
 await startServer();
 await buildMain();
-chokidar.watch('src/electron/**/*').on('all', (event, path) => {
+// 监听主进程文件变化
+let watcher = 'src/electron/**/*'
+chokidar.watch('src/electron/main.ts').on('all', (event, path) => {
+  console.log(event, path);
   if (event === 'change') {
     mainProcess.kill();
     buildMain().then(() => {

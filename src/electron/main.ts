@@ -1,5 +1,5 @@
 import {app, BrowserWindow, Tray,globalShortcut,session} from "electron";
-import {createTaskManager, createWindow} from "./windows";
+import {createTaskManager, createTranslation, createWindow} from "./windows";
 import {TaskManager} from "./processManage";
 import {InitAppConf, createTray, SetupGlobalIpc} from "./appSetup";
 import * as os from "os";
@@ -9,6 +9,7 @@ import * as path from "path";
 // 窗口的管理
 let taskManager = new TaskManager()
 let tray:Tray | undefined = undefined
+
 
 // 初始化app配置
 InitAppConf()
@@ -50,8 +51,10 @@ app.on("window-all-closed", () => {
   }
 });
 
+
 // app准备退出的时候
 app.on('will-quit', () => {
+  console.log('will quit')
   globalShortcut.unregisterAll()
   if (tray) {
     tray.destroy()
@@ -83,6 +86,11 @@ function SetupShortcut(taskManager: TaskManager) {
   // 打开任务管理器
   globalShortcut.register("Alt+e", () => {
     createTaskManager(taskManager);
+  });
+  // 打开翻译
+  // 打开任务管理器
+  globalShortcut.register("Alt+v", () => {
+    createTranslation(taskManager);
   });
 
 }

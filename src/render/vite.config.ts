@@ -18,6 +18,11 @@ export default defineConfig({
         changeOrigin: true,
         rewrite: (path) => path.replace(/^\/python/, '')
       },
+      '/deepl': {
+        target: 'https://api-free.deepl.com/',
+        changeOrigin: true,
+        rewrite: (path) => path.replace(/^\/deepl/, '')
+      },
     }
   },
   build: {
