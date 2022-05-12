@@ -89,8 +89,21 @@ function SetupShortcut(taskManager: TaskManager) {
   });
   // 打开翻译
   // 打开任务管理器
-  globalShortcut.register("Alt+v", () => {
-    createTranslation(taskManager);
+  globalShortcut.register("Alt+x", () => {
+    if (taskManager.getElectronProcessByName("translation")) {
+      if (taskManager.getElectronProcessByName("translation").isFocused()){
+        taskManager.getElectronProcessByName("translation").hide();
+      }else {
+        taskManager.getElectronProcessByName("translation").show();
+      }
+    }else{
+      createTranslation(taskManager);
+    }
+  });
+
+  globalShortcut.register("Alt+d", () => {
+    console.log('Alt+b')
+    taskManager.getElectronProcessByName('main').webContents.send('rollbackInNav',"webview")
   });
 
 }

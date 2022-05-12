@@ -53,16 +53,21 @@ const inText = ref<string>()
 const outText = ref<string>()
 
 function deepl() {
-  let url = '/deepl/v2/translate'
-  let token = '4055115a-45be-e1a4-aa79-1e855603c6b6:fx'
-  // let inText = '你好'
-  let lang = 'zh-CN'
-  let getUrl = url+`?auth_key=${token}&text=${inText.value}&target_lang=${lang}`
-  console.log(getUrl)
-  axios.get(url+`?auth_key=${token}&text=${inText.value}&target_lang=${lang}`,{
-
+  let url = '/deepl/translate'
+  axios.post(url,{
+    "text": `${inText.value}`,
+    "source_lang": "auto",
+    "target_lang": "ZH"
+  },{
+    headers:{
+      "Content-Type": "application/json"
+    }
   }).then((data)=>{
-    console.log(data)
+    outText.value = data.data.data
+    console.log(data.data)
+  })
+  .catch(()=>{
+    alert('失败')
   })
 }
 </script>

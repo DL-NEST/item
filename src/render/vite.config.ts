@@ -19,7 +19,7 @@ export default defineConfig({
         rewrite: (path) => path.replace(/^\/python/, '')
       },
       '/deepl': {
-        target: 'https://api-free.deepl.com/',
+        target: 'http://1.14.96.5:8777/',
         changeOrigin: true,
         rewrite: (path) => path.replace(/^\/deepl/, '')
       },

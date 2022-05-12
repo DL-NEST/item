@@ -34,6 +34,7 @@ export function SetupGlobalIpc(taskManager:TaskManager) {
         // 打开DevTool工具
         shell.openPath('chrome.exe').then((r) => {});
     })
+
 }
 
 function winCtrlBar() {

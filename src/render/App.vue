@@ -5,21 +5,25 @@
     </div>
 </template>
 
-<script lang="ts">
-import {defineComponent, getCurrentInstance} from "vue";
+<script lang="ts" setup>
+import {onMounted} from "vue";
 import TopCtrl from "./components/topCtrl/TopCtrl.vue";
+import {globalIpc} from "@/global";
 
-export default defineComponent({
-  name: "App",
-  components: {TopCtrl},
-  mounted() {
-  }
-});
+onMounted(()=>{
+  globalIpc(this)
+})
+
 </script>
 
 <style lang="scss">
+#app{
+  display: flex;
+  flex-direction: column;
+}
 .container{
   width: 100%;
-  height: 100%;
+  flex-grow: 1;
+  flex-shrink: 1;
 }
 </style>

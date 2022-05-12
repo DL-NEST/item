@@ -29,7 +29,7 @@
 <script lang="ts" setup>
 import {NButton,NDataTable} from 'naive-ui'
 import {onMounted, ref} from 'vue'
-import {Process, MenuOp, menuList, processManageType} from "views/taskManager/type";
+import {Process, MenuOp, menuList, processManageType} from "./type";
 
 const menuData:menuList[][] = [
   [

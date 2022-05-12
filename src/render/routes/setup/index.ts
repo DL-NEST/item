@@ -26,3 +26,5 @@ export async function setupRouter(app: App) {
     // 等待装载结束
     await router.isReady();
 }
+
+export { router };

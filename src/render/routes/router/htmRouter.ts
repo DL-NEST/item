@@ -11,4 +11,9 @@ export const htmRoutes: RouteRecordRaw[] = [
         name: 'request',
         component: () => import('views/request/index.vue'),
     },
+    {
+        path: '/home',
+        name: 'home',
+        component: () => import('views/home/index.vue'),
+    }
 ]

@@ -23,6 +23,8 @@ import WinCtrlBar from "./WinCtrlBar.vue";
   div{
     user-select: none;
   }
+  position: relative;
+  flex-shrink: 1;
   width: 100%;
   height: 2.3rem;
   background-color: var(--top-ctrl-bg);
