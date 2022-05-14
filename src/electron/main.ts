@@ -105,5 +105,9 @@ function SetupShortcut(taskManager: TaskManager) {
     console.log('Alt+b')
     taskManager.getElectronProcessByName('main').webContents.send('rollbackInNav',"webview")
   });
-
+  // 当前任务进程的刷新
+  globalShortcut.register("Alt+s", () => {
+    console.log('Alt+b')
+    BrowserWindow.getFocusedWindow()?.reload()
+  });
 }

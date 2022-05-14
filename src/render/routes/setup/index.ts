@@ -8,7 +8,7 @@ import {htmRoutes, winRoutes} from "@/routes/router";
 const routes: RouteRecordRaw[] = [
     {
         path: '/',
-        redirect: '/nav',
+        redirect: '/home',
     },
     ...winRoutes,...htmRoutes
 ];

@@ -7,7 +7,7 @@ await build({configFile: "src/electron/vite.config.ts"});
 electronBuild({
     config: {
         icon: "./public/favicon.ico",
-        asar: false,
+        asar: true,
         productName: "item",
         appId: "com.electron.item",
         directories: {

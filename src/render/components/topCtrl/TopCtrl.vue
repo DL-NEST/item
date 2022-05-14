@@ -1,5 +1,5 @@
 <template>
-  <div class="top-ctrl" v-if="this.$route.path !== '/taskManager' && this.$route.path !== '/translation'">
+  <div class="top-ctrl" v-if="topShow()">
     <div class="top-ctrl_left">
       <div class="top-ctrl_left_logo">
         <img src="../../assets/favicon.svg" alt="logo" />
@@ -15,6 +15,22 @@
 <script lang="ts" setup>
 import MenuBar from "./MenuBar.vue";
 import WinCtrlBar from "./WinCtrlBar.vue";
+import {winRoutes} from '@/routes/router'
+import {useRoute, useRouter} from "vue-router";
+import {onMounted} from "vue";
+const router = useRoute()
+
+const topShow = ():boolean=>{
+  for (let r of winRoutes) {
+    if(r.path === router.path){
+      return false
+    }
+  }
+  return true
+}
+onMounted(()=>{
+})
+
 
 </script>
 

@@ -3,20 +3,20 @@
     <div class="home-menu" :class="menuLink?'up':'down'">
       <div class="menu-top">
         <div class="menu-list" v-for="(list,i) in menuData">
-          <div class="menu-item" @click="item_btn($event,'e2df')" :class="index===0&&i===0?'activity':''" v-for="(item,index) in list">
+          <div class="menu-item" @click="item_btn($event,item.path)" :class="index===0&&i===0?'activity':''" v-for="(item,index) in list">
             <div class="item-icon">
               <icon size="21">
                 <component :is="item.icon"/>
               </icon>
             </div>
-            <div class="item-name">{{ item.name }}</div>
+            <div v-show="menuLink" class="item-name">{{ item.name }}</div>
           </div>
           <div class="list-sep"></div>
         </div>
       </div>
       <div class="menu-bottom">
         <div class="bottom-user">
-          <div class="user-card">
+          <div class="user-card" v-show="menuLink">
             <img src="../../assets/head.jpg" alt="">
             DL-Nest
           </div>
@@ -26,16 +26,21 @@
         </div>
       </div>
       <!--  控制  -->
-      <div class="deploy-area">
-        <div class="deploy-btn">
+      <div class="deploy-area" >
+        <div class="deploy-btn" @click="menuLink=!menuLink">
         </div>
       </div>
+
     </div>
-    <div class="home-content">wecwecwedcwedcc</div>
+    <div class="home-content">
+      <router-view />
+    </div>
   </div>
 </template>
 
 <script lang="ts" setup>
+import {ElMessage} from "element-plus";
+
 import {
   ExitOutline,
   EaselOutline,
@@ -49,12 +54,64 @@ import {
 } from '@vicons/ionicons5'
 import {Icon} from '@vicons/utils'
 import {Buffer} from '@vicons/fa'
-import {ref,reactive} from "vue";
+import {ref, reactive, onMounted} from "vue";
+import {useRouter} from "vue-router";
+
 type menuStd = {
   icon:any,
-  name: string
+  name: string,
+  path: string
 }
 
+const routers = useRouter()
+const menuLink = ref<boolean>(true)
+const menuData:menuStd[][] = [
+    [
+      {
+        icon: LayersOutline,
+        name: '项目管理',
+        path: 'itemManager'
+      },
+      {
+        icon: EaselOutline,
+        name: '项目看板',
+        path: 'itemBoard'
+      },
+      {
+        icon: FileTrayFullOutline,
+        name: '文件管理',
+        path: 'fileManager'
+      },
+      {
+        icon: LogoPython,
+        name: 'py脚本',
+        path: 'pythonScript'
+      },
+      {
+        icon: SyncSharp,
+        name: '项目同步',
+        path: 'itemSync'
+      },
+      {
+        icon: HeadsetOutline,
+        name: '音乐库',
+        path: 'musicLibrary'
+      }
+    ],
+    [
+      {
+        icon: CloudDownloadOutline,
+        name: '传输列表',
+        path: 'transferList'
+      },
+      {
+        icon: SettingsOutline,
+        name: '设置',
+        path: 'setup'
+      }
+    ]
+]
+// 控制标签变换路由跳转
 function item_btn(ever: any, path: string) {
   (document.querySelectorAll(".menu-item") as any).forEach(
       (node: HTMLElement) => {
@@ -62,50 +119,9 @@ function item_btn(ever: any, path: string) {
       }
   );
   ever.currentTarget.classList.add("activity");
-  // this.$router.push(path);
+  console.log(`/home/${path}`)
+  routers.push(`/home/${path}`)
 }
-
-const menuLink = ref<boolean>()
-
-const menuData:menuStd[][] = [
-    [
-      {
-        icon: LayersOutline,
-        name: '项目管理'
-      },
-      {
-        icon: EaselOutline,
-        name: '项目看板'
-      },
-      {
-        icon: FileTrayFullOutline,
-        name: '文件管理'
-      },
-      {
-        icon: LogoPython,
-        name: 'py脚本'
-      },
-      {
-        icon: SyncSharp,
-        name: '项目同步'
-      },
-      {
-        icon: HeadsetOutline,
-        name: '音乐库'
-      }
-    ],
-    [
-      {
-        icon: CloudDownloadOutline,
-        name: '传输列表'
-      },
-      {
-        icon: SettingsOutline,
-        name: '设置'
-      }
-    ]
-]
-
 
 </script>
 
@@ -130,7 +146,6 @@ $icon-cl:rgba(37, 38, 43,0.8);
   flex-direction: row;
   color: $icon-cl;
   .home-menu{
-    width: 220px;
     height: 100%;
     flex-shrink: inherit;
     background-color: $main-bg;
@@ -181,6 +196,8 @@ $icon-cl:rgba(37, 38, 43,0.8);
   flex-direction: column;
   justify-content: space-between;
   box-sizing: border-box;
+  transition: width .66s cubic-bezier(0.66, 0, 0.01, 1);
+  border-right: 1px solid #E8E9F0;
   .menu-list{
     padding: 1.2rem 1.2rem 1rem;
     display: flex;
@@ -199,15 +216,25 @@ $icon-cl:rgba(37, 38, 43,0.8);
       border-radius: 0.6rem;
       cursor: pointer;
       .item-icon{
-        margin-right: 1.2rem;
+        span{
+          color: $icon-cl;
+        }
       }
       .item-name{
+        white-space: nowrap;
         font-family: "monospace";
         font-size: 1.23em;
+        flex-shrink: 1;
+        overflow: hidden;
       }
       &:hover{
         background-color: $btn-hover-bg;
       }
+    }
+    &:last-child .list-sep{
+      width: 100%;
+      height: 0;
+      border-bottom: 0;
     }
     .list-sep{
       box-sizing: border-box;
@@ -226,7 +253,6 @@ $icon-cl:rgba(37, 38, 43,0.8);
       transition: background-color 0.3s ease-in-out;
       display: flex;
       flex-direction: row;
-      justify-content: space-between;
       align-items: center;
       padding: 1.6rem;
       border-top: 1px solid $line-cl;
@@ -237,6 +263,8 @@ $icon-cl:rgba(37, 38, 43,0.8);
         flex-direction: row;
         align-items: center;
         font-size: 1.2em;
+        overflow: hidden;
+        white-space: nowrap;
         img{
           width: 30px;
           border-radius: 50%;
@@ -246,7 +274,6 @@ $icon-cl:rgba(37, 38, 43,0.8);
       .user-out{
         user-select: none;
         cursor: pointer;
-        margin-right: 12px;
         width: 26px;
         height: 26px;
         background-color: $card-out-bg;
@@ -265,23 +292,51 @@ $icon-cl:rgba(37, 38, 43,0.8);
     }
   };
 }
-.menu-list:last-child .list-sep{
-  width: 100%;
-  height: 0;
-  border-bottom: 0;
-}
+// 选中样式
 .activity{
   background-color: $btn-click-bg!important;
 }
-.item-icon {
-  span{
-    color: $icon-cl;
+
+.up{
+  width: 18.6rem;
+  .menu-item {
+    .item-icon{
+      margin: 1.2rem;
+    }
+  }
+  .bottom-user{
+    justify-content: space-between;
+    .user-out{
+      margin-right: 12px;
+    }
   }
 }
+
+.down{
+  width: 6.6rem;
+  .menu-item {
+    justify-content: center;
+    .item-icon{
+      margin: 0;
+    }
+  }
+  .bottom-user{
+    justify-content: center;
+    .user-out{
+      margin: 0;
+    }
+  }
+}
+
+.home-menu .menu-list .menu-item .item-icon {
+
+}
+
+
 // home内容
 .home-content{
   flex-grow: 1;
   height: 100%;
-
 }
+
 </style>

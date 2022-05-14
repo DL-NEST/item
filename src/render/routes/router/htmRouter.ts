@@ -1,4 +1,5 @@
 import {RouteRecordRaw} from "vue-router";
+import {homeRouter} from "@/routes/router/homeRouter";
 
 export const htmRoutes: RouteRecordRaw[] = [
     {
@@ -11,9 +12,6 @@ export const htmRoutes: RouteRecordRaw[] = [
         name: 'request',
         component: () => import('views/request/index.vue'),
     },
-    {
-        path: '/home',
-        name: 'home',
-        component: () => import('views/home/index.vue'),
-    }
+    // 主页的路由
+    homeRouter
 ]
